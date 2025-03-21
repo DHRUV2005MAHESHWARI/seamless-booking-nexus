@@ -114,7 +114,7 @@ const CategoryList = () => {
         </div>
         
         <div className="mt-12 text-center">
-          <Link to="/categories">
+          <Link to="/explore">
             <Button variant="outline" size="lg" className="rounded-full">
               <span>View All Categories</span>
               <ArrowRight className="ml-2 h-4 w-4" />
