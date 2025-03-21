@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
@@ -33,7 +32,8 @@ import {
   Phone, 
   Settings, 
   User, 
-  X 
+  X,
+  Clock
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -138,7 +138,6 @@ const Profile = () => {
       <main className="flex-grow pt-24 pb-16">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Sidebar */}
             <div className="lg:col-span-1">
               <div className="glass-morphism p-6 rounded-xl sticky top-24">
                 <div className="text-center mb-6">
@@ -233,9 +232,7 @@ const Profile = () => {
               </div>
             </div>
             
-            {/* Main Content */}
             <div className="lg:col-span-3">
-              {/* Upcoming Bookings Tab */}
               {activeTab === 'bookings' && (
                 <div className="animate-fade-in">
                   <h1 className="text-2xl font-bold mb-6">My Upcoming Bookings</h1>
@@ -319,7 +316,6 @@ const Profile = () => {
                 </div>
               )}
               
-              {/* Booking History Tab */}
               {activeTab === 'history' && (
                 <div className="animate-fade-in">
                   <h1 className="text-2xl font-bold mb-6">Booking History</h1>
@@ -402,7 +398,6 @@ const Profile = () => {
                     <TabsContent value="completed" className="space-y-4">
                       {mockBookings.filter(booking => booking.status === 'completed').map(booking => (
                         <Card key={booking.id} className="overflow-hidden">
-                          {/* Same card content as above, filtered for completed */}
                           <div className="flex flex-col md:flex-row">
                             <div className="h-40 md:h-auto md:w-48 flex-shrink-0 relative">
                               <img 
@@ -414,7 +409,6 @@ const Profile = () => {
                                 Completed
                               </div>
                             </div>
-                            {/* Rest of card content */}
                             <div className="flex-1 p-6">
                               <div className="flex flex-wrap justify-between items-start gap-2">
                                 <div>
@@ -464,7 +458,6 @@ const Profile = () => {
                     <TabsContent value="cancelled" className="space-y-4">
                       {mockBookings.filter(booking => booking.status === 'cancelled').map(booking => (
                         <Card key={booking.id} className="overflow-hidden">
-                          {/* Same card content as above, filtered for cancelled */}
                           <div className="flex flex-col md:flex-row">
                             <div className="h-40 md:h-auto md:w-48 flex-shrink-0 relative">
                               <img 
@@ -476,7 +469,6 @@ const Profile = () => {
                                 Cancelled
                               </div>
                             </div>
-                            {/* Rest of card content */}
                             <div className="flex-1 p-6">
                               <div className="flex flex-wrap justify-between items-start gap-2">
                                 <div>
@@ -523,7 +515,6 @@ const Profile = () => {
                 </div>
               )}
               
-              {/* Profile Settings Tab */}
               {activeTab === 'profile' && (
                 <div className="animate-fade-in">
                   <div className="flex items-center justify-between mb-6">
@@ -643,7 +634,6 @@ const Profile = () => {
                 </div>
               )}
               
-              {/* For other tabs, we could add placeholder content or implement them as needed */}
               {(activeTab === 'payment' || activeTab === 'notifications' || activeTab === 'password') && (
                 <div className="animate-fade-in">
                   <h1 className="text-2xl font-bold mb-6">

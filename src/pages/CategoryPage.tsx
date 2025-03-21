@@ -4,7 +4,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ServiceCard from '@/components/ui/card/ServiceCard';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Filter, SlidersHorizontal, Clock, MapPin } from 'lucide-react';
+import { ArrowRight, Filter, SlidersHorizontal, Clock, MapPin, Star } from 'lucide-react';
 import { 
   Select,
   SelectContent,
