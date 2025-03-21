@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -10,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search } from 'lucide-react';
+import { ServiceType } from '@/utils/aiRecommendations';
 
 const categories = [
   { value: 'all', label: 'All Categories' },
@@ -23,12 +25,19 @@ const categories = [
 
 const SearchBar = () => {
   const [query, setQuery] = useState('');
-  const [category, setCategory] = useState('all');
+  const [category, setCategory] = useState<ServiceType>('all');
+  const navigate = useNavigate();
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Searching for:', { query, category });
-    // Implement search functionality here
+    
+    // Build the search params
+    const searchParams = new URLSearchParams();
+    if (query) searchParams.set('query', query);
+    if (category) searchParams.set('category', category);
+    
+    // Navigate to the search page with the query parameters
+    navigate(`/search?${searchParams.toString()}`);
   };
   
   return (
@@ -44,7 +53,7 @@ const SearchBar = () => {
           />
         </div>
         <div className="md:w-[180px]">
-          <Select value={category} onValueChange={setCategory}>
+          <Select value={category} onValueChange={(value) => setCategory(value as ServiceType)}>
             <SelectTrigger className="w-full h-12 rounded-xl border-none bg-white/50 backdrop-blur-lg">
               <SelectValue placeholder="Category" />
             </SelectTrigger>
