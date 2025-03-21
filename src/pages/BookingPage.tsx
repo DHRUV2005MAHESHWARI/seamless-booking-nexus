@@ -1,15 +1,23 @@
 
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import BookingCalendar from '@/components/booking/BookingCalendar';
+import MapComponent from '@/components/booking/MapComponent';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, ArrowRight, Calendar, Check, CreditCard } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  ArrowRight, 
+  Calendar, 
+  Check, 
+  CreditCard, 
+  MapPin
+} from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -19,6 +27,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useBooking } from "@/contexts/BookingContext";
 
 // Mock service info for the demo
 const serviceInfo = {
@@ -26,14 +35,22 @@ const serviceInfo = {
   title: 'Dr. Smith - General Consultation',
   image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=2940&auto=format&fit=crop',
   duration: '30 min',
-  price: '$120'
+  price: '$120',
+  location: {
+    name: 'Central Medical Center',
+    address: '123 Medical Center Dr, San Francisco, CA 94102',
+    lat: 37.7749,
+    lng: -122.4194
+  }
 };
 
 const BookingPage = () => {
   const { serviceId } = useParams<{ serviceId: string }>();
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number; address?: string } | null>(null);
   const [contactInfo, setContactInfo] = useState({
     name: '',
     email: '',
@@ -42,13 +59,20 @@ const BookingPage = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { setBookingDate, setBookingTimeSlot, setBookingNotes } = useBooking();
   
   const handleSelectDate = (date: Date | undefined) => {
     setSelectedDate(date);
+    if (date) setBookingDate(date);
   };
   
   const handleSelectTime = (timeSlot: string) => {
     setSelectedTime(timeSlot);
+    setBookingTimeSlot(timeSlot);
+  };
+  
+  const handleLocationSelect = (location: { lat: number; lng: number; address?: string }) => {
+    setUserLocation(location);
   };
   
   const handleContactInfoChange = (
@@ -56,6 +80,10 @@ const BookingPage = () => {
   ) => {
     const { name, value } = e.target;
     setContactInfo(prev => ({ ...prev, [name]: value }));
+    
+    if (name === 'notes') {
+      setBookingNotes(value);
+    }
   };
   
   const handleContinue = () => {
@@ -148,6 +176,17 @@ const BookingPage = () => {
                         </div>
                       </div>
                     )}
+
+                    <div className="pt-4 space-y-2">
+                      <Separator />
+                      <div className="flex items-start gap-2 mt-4">
+                        <MapPin className="h-5 w-5 text-primary mt-0.5" />
+                        <div>
+                          <p className="font-medium">{serviceInfo.location.name}</p>
+                          <p className="text-muted-foreground text-sm">{serviceInfo.location.address}</p>
+                        </div>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -158,7 +197,7 @@ const BookingPage = () => {
       case 2:
         return (
           <div className="max-w-4xl mx-auto animate-fade-in">
-            <h2 className="text-2xl font-bold mb-6">Contact Information</h2>
+            <h2 className="text-2xl font-bold mb-6">Contact Information & Location</h2>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2">
                 <form onSubmit={handleSubmit} className="glass-morphism rounded-xl p-6 shadow-lg">
@@ -202,6 +241,14 @@ const BookingPage = () => {
                     </div>
                     
                     <div className="space-y-2">
+                      <Label htmlFor="location">Your Location</Label>
+                      <MapComponent 
+                        onLocationSelect={handleLocationSelect}
+                        serviceLocation={serviceInfo.location}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
                       <Label htmlFor="notes">Special Requests or Notes</Label>
                       <Textarea 
                         id="notes"
@@ -225,7 +272,7 @@ const BookingPage = () => {
                       <Button 
                         type="submit"
                         className="sm:w-1/3"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || !userLocation}
                       >
                         {isSubmitting ? (
                           <span>Processing...</span>
@@ -276,6 +323,14 @@ const BookingPage = () => {
                           })}
                         </p>
                         <p className="text-muted-foreground">{selectedTime}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-2">
+                      <MapPin className="h-5 w-5 text-primary mt-0.5" />
+                      <div>
+                        <p className="font-medium">{serviceInfo.location.name}</p>
+                        <p className="text-muted-foreground text-sm">{serviceInfo.location.address}</p>
                       </div>
                     </div>
                     
@@ -355,17 +410,16 @@ const BookingPage = () => {
               A confirmation email with all the details has been sent to your email address.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Link to="/bookings">
-                <Button variant="outline">
-                  View My Bookings
-                </Button>
-              </Link>
-              <Link to="/">
-                <Button>
-                  Back to Home
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/bookings')}
+              >
+                View My Bookings
+              </Button>
+              <Button onClick={() => navigate('/')}>
+                Back to Home
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
             </div>
           </div>
         );
